@@ -15,9 +15,11 @@ import styles from "../../styles/SignInUpForm.module.css";
 import btnStyles from "../../styles/Button.module.css";
 import appStyles from "../../App.module.css";
 import { useSetCurrentUser } from "../../contexts/CurrentUserContext";
+import { useRedirect } from "../../hooks/useRedirect";
 
 function SignInForm() {
   const  setCurrentUser = useSetCurrentUser();
+  useRedirect('loggedIn')
   const [signInData, setSignInData] = useState({
     username: "",
     password: "",
@@ -31,8 +33,13 @@ function SignInForm() {
     event.preventDefault();
     try {
       const {data} = await axios.post("/dj-rest-auth/login/", signInData);
+      // console.log(data.access_token)
+      const authToken =data.access_token;
+
+      // Store the authentication token in local storage
+      localStorage.setItem('authToken', authToken);
       setCurrentUser(data.user)
-      history("/");
+      history.goBack();
     } catch (err) {
       setErrors(err.response?.data);
     }
